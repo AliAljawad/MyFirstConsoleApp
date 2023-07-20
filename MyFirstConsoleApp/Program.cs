@@ -1,109 +1,111 @@
 ﻿using MyFirstConsoleApp;
 
-List<Phone>phones=new List<Phone>();
+List<Phone> phones = new List<Phone>();
+while (phones.Count < 10)
+{
 
+    try
+    {
         Console.WriteLine("Choose one of the following options:");
         Console.WriteLine("1.Add a phone");
         Console.WriteLine("2.List the phones");
         Console.WriteLine("3.Update Phone info");
         Console.WriteLine("4.Delete Phone");
         Console.WriteLine("5.Exit App");
-while (phones.Count < 10)
-{
-    var Case = Convert.ToInt32(Console.ReadLine());
-    switch (Case)
+
+        var caseInput = Console.ReadLine();
+        var @case = Convert.ToInt32(string.IsNullOrEmpty(caseInput) ? "0" : caseInput);
+
+        switch (@case)
+        {
+            case 1:
+                CreatePhone();
+                break;
+            case 2:
+                ListPhones();
+                break;
+            case 3:
+                UpdatePhone();
+                break;
+
+            case 4:
+                DeletePhone();
+                break;
+            case 5:
+                Environment.Exit(0);
+                break;
+
+        }
+    }
+    catch (Exception ex)
     {
-        case 1:
-            createPhone();
-            break;
-        case 2:
-            ListPhones();
-            break;
-        case 3:
-            updatePhone();
-            break;
-
-        case 4:
-            deletePhone();
-            break;
-        case 5:
-            Environment.Exit(0);
-            break;
-
-    } 
+        Console.WriteLine(ex.ToString());
+    }
 }
-void createPhone()
+void CreatePhone()
 {
-        Console.WriteLine("starting the operation of creating a new phone");
-        Console.WriteLine("Enter the phone's Brand");
-        string brand = Console.ReadLine();
-        Console.WriteLine("Enter the phone's name");
-        string name = Console.ReadLine();
-        Console.WriteLine("Enter the phone's color");
-        string color = Console.ReadLine();
-        Console.WriteLine("Enter the phone's imei");
-        var imei = Convert.ToInt32(Console.ReadLine());
-    bool duplicate = phones.FirstOrDefault(phone => phone.IMEI == imei) != null;
-
+    Console.WriteLine("starting the operation of creating a new phone");
+    Console.WriteLine("Enter the phone's Brand");
+    var brand = Console.ReadLine();
+    Console.WriteLine("Enter the phone's name");
+    var name = Console.ReadLine();
+    Console.WriteLine("Enter the phone's color");
+    var color = Console.ReadLine();
+    Console.WriteLine("Enter the phone's imei");
+    var imei = Convert.ToInt32(Console.ReadLine());
+    bool duplicate = phones.Any(phone => phone.Id == imei);
     while (duplicate)
     {
         Console.WriteLine("Phone already exists");
         Console.WriteLine("Enter the phone's IMEI");
         imei = Convert.ToInt32(Console.ReadLine());
-        duplicate = phones.FirstOrDefault(phone => phone.IMEI == imei) != null;
+        duplicate = phones.Any(phone => phone.Id == imei);
     }
+    phones.Add(new Phone(imei, brand, name, color));
 
-    phones.Add(new Phone (brand, name, color, imei));
-
-   }
+}
 void ListPhones()
 {
-    if (phones.Count == 0)
+    if (!phones.Any())
     {
         Console.WriteLine("No phones available.");
     }
     else
     {
         Console.WriteLine("List of phones:");
-        foreach (Phone phone in phones)
+        foreach (var phone in phones)
         {
             Console.WriteLine(phone.ToString());
         }
     }
 }
-void updatePhone()
+void UpdatePhone()
 {
     Console.WriteLine("Enter the IMEI of the phone you want to update");
     var imei = Convert.ToInt32(Console.ReadLine());
+    var phone = phones.FirstOrDefault(p => p.Id == imei);
 
-    foreach (Phone phone in phones)
+    if (phone is null)
+        Console.WriteLine("IMEI Does not exist");
+    else
     {
-        if (phone.IMEI == imei)
-        {
-            Console.WriteLine("Enter the new phone's Brand");
-            string brand = Console.ReadLine();
-            Console.WriteLine("Enter the new phone's name");
-            string name = Console.ReadLine();
-            Console.WriteLine("Enter the new phone's color");
-            string color = Console.ReadLine();
-            phone.Brand = brand;
-            phone.Name = name;
-            phone.Color = color;
-            Console.WriteLine("Phone updated successfully.");
-            break;
-        }
+        Console.WriteLine("Enter the new phone's Brand");
+        var brand = Console.ReadLine();
+        Console.WriteLine("Enter the new phone's name");
+        var name = Console.ReadLine();
+        Console.WriteLine("Enter the new phone's color");
+        var color = Console.ReadLine();
+        phone.Update(brand, name, color);
+        Console.WriteLine("Phone updated successfully.");
     }
 }
-void deletePhone()
+void DeletePhone()
 {
     Console.WriteLine("Enter the imei of the phone you want to delete");
     var imei = Convert.ToInt32(Console.ReadLine());
-    foreach (Phone phone in phones)
-    {
-        if (phone.IMEI == imei)
-        {
-            phones.Remove(phone);
-            break;
-        }
-    }
+    var phone = phones.FirstOrDefault(phone => phone.Id == imei);
+    if (phone is null)
+        Console.WriteLine("Phone does not exist");
+    else
+        phones.Remove(phone);
 }
